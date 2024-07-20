@@ -3,6 +3,7 @@ const router = express.Router();
 const Customer = require("../models/Customer");
 const nodemailer = require("nodemailer");
 
+// transporter object
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -11,6 +12,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// handle post requests
 router.post("/signup", async (req, res) => {
   const { email, referralCode } = req.body;
   try {
@@ -34,6 +36,7 @@ router.post("/signup", async (req, res) => {
       }
     }
 
+    // Save the new customer 
     await newCustomer.save();
 
     if (newCustomer.position === 1) {
@@ -44,6 +47,7 @@ router.post("/signup", async (req, res) => {
         text: "You have reached position 1 in the waitlist. Here is your coupon code: COUPON123",
       };
 
+      // Send the email using the transporter
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log(error);
@@ -53,6 +57,7 @@ router.post("/signup", async (req, res) => {
       });
     }
 
+    // respond with the new customers position and referral code
     res.json({
       position: newCustomer.position,
       referralCode: newCustomer.referralCode,
