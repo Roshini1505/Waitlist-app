@@ -5,13 +5,18 @@ const SignupForm = ({ setPosition, setReferralCode }) => {
   const [email, setEmail] = useState("");
   const [referralCode, setReferral] = useState("");
 
+  // handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+
+      // sends a post request
       const response = await axios.post(
         "http://localhost:5000/api/customers/signup",
         { email, referralCode }
       );
+
+      // sets position and referral code
       setPosition(response.data.position);
       setReferralCode(response.data.referralCode);
     } catch (err) {
