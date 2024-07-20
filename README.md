@@ -96,7 +96,7 @@ For deployment, follow these steps:
    - You can deploy the React frontend using Netlify or Vercel.
 
 
-**Notes:**
+**Note:**
 This project was created specifically to demonstrate my full-stack development skills as part of a job interview process. It showcases my ability to build and integrate both front-end and back-end technologies and manage a complete application workflow.
      
 
