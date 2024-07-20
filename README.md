@@ -58,6 +58,50 @@ This is a full-stack waitlist application that allows users to sign up with thei
    cp .env.example .env
    ```
 
+   Update the .env file with the following variables:
+   ```
+   MONGO_URI=your_mongodb_uri
+   EMAIL_USER=your_email@gmail.com
+   EMAIL_PASS=your_email_password
+   ```
+4. **Start the servers:**
+
+   - **Backend:**
+  
+     ```
+     cd backend
+     node server.js
+     ```
+
+   - **Frontend:**
+     Open another terminal and navigate to the frontend directory:
+
+     ```
+     cd ../frontend
+     npm start
+     ```
+
+## Deployment
+
+For deployment, follow these steps:
+
+1. **Deploy the backend:**
+
+   -Use Heroku or another service of your choice.
+   -Set up environment variables on the deployment platform.
+
+2. **Deploy the frontend:**
+
+   -You can deploy the React frontend using Netlify or Vercel.
+
+
+**Notes:**
+This project was created specifically to demonstrate my full-stack development skills as part of a job interview process. It showcases my ability to build and integrate both front-end and back-end technologies and manage a complete application workflow.
+     
+
+
+   
+
    
 
      
