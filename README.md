@@ -16,7 +16,7 @@ This is a full-stack waitlist application that allows users to sign up with thei
 - Deployment: Heroku (or your preferred service)
 
 ## Screenshot
-![Website] (frontend/Screenshot.png)
+![Website Screenshot] (frontend/Screenshot.png)
 
 ## Setup
 
