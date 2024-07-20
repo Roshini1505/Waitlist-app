@@ -87,12 +87,13 @@ For deployment, follow these steps:
 
 1. **Deploy the backend:**
 
-   -Use Heroku or another service of your choice.
-   -Set up environment variables on the deployment platform.
+   - Use Heroku or another service of your choice.
+     
+   - Set up environment variables on the deployment platform.
 
 2. **Deploy the frontend:**
 
-   -You can deploy the React frontend using Netlify or Vercel.
+   - You can deploy the React frontend using Netlify or Vercel.
 
 
 **Notes:**
