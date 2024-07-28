@@ -21,10 +21,11 @@ This is a full-stack application for a waitlist signup system for a new iPhone p
 
 ## Features
 
-- User signup with email validation.
-- Generation of unique referral links.
-- Email notification on successful signup.
-- Display user position in the waitlist.
+- The app allows a potential customer to sign up to the waiting list with their email address. (They will see a screen with an email address field)
+- As soon as they sign up, their position in the waiting list will be displayed. (The first customer gets the default number of 99. When the next customer signs up, their waiting list position is 100)
+- Once they sign up for the waiting list, they will get a unique referral link. They can share this link with their friends.
+- If their friends sign up using their referral link, they will “move up” by 1 place in their position (Example: John has joined the wait list at position: 120. He referred 10 of his friends. When they joined, John’s position will go to 110)
+- Once a customer reaches Position 1, they will receive an email with a coupon code to purchase the new product.
 
 ## Getting Started
 
