@@ -137,29 +137,6 @@ This is a full-stack application for a waitlist signup system for a new iPhone p
 
     The frontend server should now be running on `http://localhost:3000`.
 
-## Deployment
-
-To deploy this application, follow these steps:
-
-1. **Build the Frontend:**
-
-    - Navigate to the frontend directory:
-
-      ```sh
-      cd frontend
-      ```
-
-    - Build the application:
-
-      ```sh
-      npm run build
-      ```
-
-    The build artifacts will be stored in the `build/` directory.
-
-2. **Deploy the Backend and Frontend:**
-
-    - You can deploy the backend and frontend to your preferred hosting provider (e.g., Heroku, Vercel, Netlify).
 
 ## License
 
