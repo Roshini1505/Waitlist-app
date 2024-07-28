@@ -149,11 +149,13 @@ To deploy this application, follow these steps:
       cd frontend
       ```
 
-    - Start the application:
+    - Build the application:
 
       ```sh
-      npm start
+      npm run build
       ```
+
+    The build artifacts will be stored in the `build/` directory.
 
 2. **Deploy the Backend and Frontend:**
 
