@@ -2,7 +2,7 @@
 
 This is a full-stack application for a waitlist signup system for a new iPhone product. The application includes a frontend built with React and a backend built with Node.js, Express, and MongoDB.
 
-> **Note:** This project was created as part of a job interview process to demonstrate my skills in full-stack development.
+
 
 ## Tech Stack
 
