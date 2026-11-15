@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOBBY — Intelligent Waitlist & Access Management Platform</title>
+  <meta name="description" content="LOBBY is an enterprise product launch, intelligent queue ranking, and referral orchestration platform." />
+  <link rel="icon" type="image/png" href="./assets/waitlist_logo.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app-root">
+    <!-- Collapsible Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Sidebar Navigation">
+      <!-- Brand Header -->
+      <div class="sidebar-brand-header">
+        <a href="#/overview" class="brand-wrapper">
+          <img src="./assets/lobby.png" alt="LOBBY" class="brand-logo-img" />
+          <div class="brand-title-group">
+            <span class="brand-title">LOBBY</span>
+            <span class="brand-subtitle">Launch Systems</span>
+          </div>
+        </a>
+        <button class="sidebar-collapse-btn" id="sidebar-toggle-btn" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Workspace Switcher Row -->
+      <div class="sidebar-workspace-row">
+        <button class="workspace-badge-btn" id="workspace-switcher-btn" title="Switch Workspace">
+          <div class="workspace-info">
+            <div class="workspace-avatar">AC</div>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Acme Corp / Prod</span>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation Body -->
+      <div class="sidebar-nav-body">
+        <!-- Core Navigation -->
+        <div>
+          <div class="nav-section-title">Core</div>
+          <ul class="nav-list">
+            <li>
+              <button class="nav-item-btn active" data-nav="overview">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span class="nav-label">Overview</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="campaigns">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <span class="nav-label">Campaigns</span>
+                <span class="nav-pill-badge" id="nav-count-campaigns">2</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="waitlists">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                <span class="nav-label">Waitlists & Queue</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="referrals">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <polyline points="17 11 19 13 23 9"></polyline>
+                </svg>
+                <span class="nav-label">Referrals</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="rewards">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                  <rect x="2" y="7" width="20" height="5"></rect>
+                  <line x1="12" y1="22" x2="12" y2="7"></line>
+                  <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                  <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                </svg>
+                <span class="nav-label">Rewards & Coupons</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="waiting-room">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span class="nav-label">Virtual Waiting Room</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Operations Navigation -->
+        <div>
+          <div class="nav-section-title">Operations</div>
+          <ul class="nav-list">
+            <li>
+              <button class="nav-item-btn" data-nav="fraud">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span class="nav-label">Fraud & Risk</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="analytics">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span class="nav-label">Analytics</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="team">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span class="nav-label">Team & Access</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- System Navigation -->
+        <div>
+          <div class="nav-section-title">System</div>
+          <ul class="nav-list">
+            <li>
+              <a href="/api/docs" target="_blank" class="nav-item-btn" style="text-decoration: none;">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <span class="nav-label">API Documentation</span>
+              </a>
+            </li>
+            <li>
+              <button class="nav-item-btn" data-nav="settings">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span class="nav-label">Settings</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer User Profile -->
+      <div class="sidebar-footer">
+        <div class="user-profile-row" id="user-profile-btn" title="View Administrator Profile">
+          <div class="user-avatar-circle">PA</div>
+          <div class="user-info-text">
+            <div class="user-name">Platform Admin</div>
+            <div class="user-role-badge">admin@lobby.io</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Shell Layout -->
+    <div class="app-main-layout" id="app-main-layout">
+      <!-- Top Navigation Bar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+            <span class="breadcrumb-item">Acme Corp</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item">LOBBY</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current" id="breadcrumb-current-label">Overview</span>
+          </nav>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Global Search -->
+          <div class="global-search-container">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="search-input" id="global-search-input" placeholder="Search members, campaigns..." />
+            <span class="search-shortcut-badge">⌘K</span>
+          </div>
+
+          <!-- Environment Badge -->
+          <span class="badge-pill status-active" style="font-size: 10px; font-weight: 700;">PROD</span>
+
+          <!-- Quick Actions -->
+          <button class="topbar-action-btn btn-primary-action" id="header-create-campaign-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Campaign</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Canvas Root -->
+      <main class="page-canvas" id="page-canvas-root" role="main">
+        <!-- Rendered dynamically by app.js -->
+      </main>
+    </div>
+  </div>
+
+  <!-- Slide-Over Drawer Root -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="slide-over-drawer" id="slide-over-drawer" aria-label="Customer Journey Drawer">
+    <div class="drawer-header">
+      <h2 id="drawer-title">Member Journey</h2>
+      <button class="drawer-close-btn" id="drawer-close-btn" aria-label="Close drawer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="drawer-content">
+      <!-- Dynamic content from app.js -->
+    </div>
+  </aside>
+
+  <!-- Modal Dialog Root -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-container" id="modal-container">
+      <!-- Dynamic modal content from app.js -->
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Socket.io & Application Script -->
+  <script src="/socket.io/socket.io.js" onerror="this.onerror=null;"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

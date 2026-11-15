@@ -5,7 +5,7 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,8 +24,13 @@ body {
   padding: 20px;
   border-radius: 15px;
   text-align: center;
-  max-width: 400px;
+  max-width: 450px;
   width: 100%;
+  margin: 20px auto;
+}
+
+.check-container {
+  max-width: 500px;
 }
 
 .logo {
@@ -37,16 +42,28 @@ form {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+}
+
+label {
+  display: block;
+  text-align: left;
+  width: 100%;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 input {
   width: 100%;
   padding: 10px;
-  margin: 10px 0;
+  margin: 5px 0 12px;
   border-radius: 5px;
   border: none;
   outline: none;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  font-size: 1rem;
 }
 
 button {
@@ -58,15 +75,288 @@ button {
   font-size: 16px;
   cursor: pointer;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
 }
 
 button:hover {
   background-color: #005bb5;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Messages */
+.error-message {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.15);
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  color: #4dff88;
+  background: rgba(77, 255, 136, 0.1);
+  border: 1px solid rgba(77, 255, 136, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+/* Position Display */
+.position-display {
+  margin-top: 10px;
+  padding: 10px 0;
+}
+
+.position-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.position-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #007aff;
+  line-height: 1.1;
+}
+
+.position-label {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.position-desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 8px 0 14px;
+}
+
+.referral-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 15px 0;
+  word-break: break-all;
+}
+
+.referral-url {
+  word-break: break-all;
+  font-size: 0.85rem;
+  flex: 1;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.copy-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.copy-btn:hover {
+  background-color: #666;
+}
+
+.share-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+}
+
+.share-btn:hover {
+  opacity: 0.85;
+}
+
+.twitter {
+  background: #1da1f2;
+}
+
+.whatsapp {
+  background: #25d366;
+}
+
+/* Check Position Page */
+.check-position-page {
+  text-align: center;
+}
+
+.check-desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 16px;
+}
+
+.check-result {
+  margin-top: 20px;
+}
+
+.referral-count {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 10px;
+}
+
 .footer {
-  position: absolute;
+  position: fixed;
   bottom: 10px;
   right: 10px;
   font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Signup Counter */
+.signup-counter {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ff9f1a;
+  background: rgba(255, 159, 26, 0.15);
+  border: 1px solid rgba(255, 159, 26, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0 auto 15px auto;
+  letter-spacing: 0.5px;
+}
+
+/* Position Moved Animation */
+.position-moved {
+  animation: pulse 0.5s ease-in-out 3;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); color: #00e676; }
+  100% { transform: scale(1); }
+}
+
+.position-update-flash {
+  color: #00e676;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 5px 0;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Admin Dashboard Styles */
+.admin-container {
+  max-width: 700px !important;
+}
+
+.admin-dashboard h2 {
+  margin-bottom: 20px;
+}
+
+.admin-stats-row {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.admin-stat-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 16px 24px;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-stat-number {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #007aff;
+}
+
+.admin-stat-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+.admin-section {
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.admin-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 6px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-table th, .admin-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-table th {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.admin-logout-btn {
+  background-color: #e53935;
+  margin-top: 15px;
+}
+.admin-logout-btn:hover {
+  background-color: #c62828;
+}
+
+/* Mobile Responsiveness Improvements */
+@media only screen and (max-width: 480px) {
+  .container {
+    margin: 15px;
+    padding: 18px;
+    max-width: 100%;
+    border-radius: 12px;
+  }
+  h1 { font-size: 1.4rem; }
+  .logo { width: 75px; }
+  .share-buttons { flex-direction: column; align-items: stretch; }
+  .share-btn { text-align: center; }
+  .referral-box { flex-direction: column; align-items: stretch; gap: 8px; }
+  .copy-btn { width: 100%; }
+  input, button[type="submit"] { font-size: 16px; }
+  .position-number { font-size: 2.5rem; }
+  .admin-stats-row { flex-direction: column; }
 }

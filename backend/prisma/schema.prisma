@@ -1,0 +1,252 @@
+// Prisma Schema for Lobby (LaunchOS) Multi-Tenant SaaS Platform
+// Authoritative Relational Data Model Specification
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ORG_OWNER
+  ORG_ADMIN
+  CAMPAIGN_MANAGER
+  SUPPORT_AGENT
+  CUSTOMER
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum MemberStatus {
+  ACTIVE
+  SUSPENDED
+  FLAGGED
+  DISQUALIFIED
+}
+
+enum ReferralStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVERSED
+}
+
+enum FraudStatus {
+  CLEAN
+  SUSPICIOUS
+  HIGH_RISK
+  CRITICAL
+}
+
+enum CouponStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     OrganizationMember[]
+  campaigns   Campaign[]
+  auditLogs   AuditLog[]
+
+  @@map("organizations")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(CUSTOMER)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orgMemberships OrganizationMember[]
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  organizationId String
+  userId         String
+  role           UserRole     @default(ORG_ADMIN)
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
+}
+
+model Campaign {
+  id                String         @id @default(uuid())
+  organizationId    String
+  title             String
+  slug              String         @unique
+  description       String?
+  status            CampaignStatus @default(ACTIVE)
+  maxCapacity       Int?
+  currentCount      Int            @default(0)
+  registrationStart DateTime?
+  registrationEnd   DateTime?
+  scoringConfig     Json?          // e.g. { referralWeight: 10, bonusWeights: {} }
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  organization      Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members           CampaignMember[]
+  referrals         Referral[]
+  rewardRules       RewardRule[]
+  fraudSignals      FraudSignal[]
+
+  @@index([organizationId, status])
+  @@map("campaigns")
+}
+
+model CampaignMember {
+  id              String       @id @default(uuid())
+  campaignId      String
+  email           String
+  name            String
+  referralCode    String       @unique
+  referredByCode  String?
+  score           Int          @default(0)
+  rank            Int          @default(0)
+  referralCount   Int          @default(0)
+  status          MemberStatus @default(ACTIVE)
+  fraudStatus     FraudStatus  @default(CLEAN)
+  metadata        Json?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  campaign        Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  referralsGiven  Referral[]   @relation("Referrer")
+  referralsTaken  Referral[]   @relation("Referee")
+  coupons         Coupon[]
+  fraudSignals    FraudSignal[]
+
+  @@unique([campaignId, email])
+  @@index([campaignId, score, createdAt])
+  @@index([campaignId, referralCode])
+  @@map("campaign_members")
+}
+
+model Referral {
+  id               String         @id @default(uuid())
+  campaignId       String
+  referrerMemberId String
+  refereeMemberId  String
+  status           ReferralStatus @default(PENDING)
+  scorePoints      Int            @default(10)
+  riskScore        Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  campaign         Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  referrer         CampaignMember @relation("Referrer", fields: [referrerMemberId], references: [id], onDelete: Cascade)
+  referee          CampaignMember @relation("Referee", fields: [refereeMemberId], references: [id], onDelete: Cascade)
+  events           ReferralEvent[]
+
+  @@unique([campaignId, refereeMemberId])
+  @@index([campaignId, referrerMemberId, status])
+  @@map("referrals")
+}
+
+model ReferralEvent {
+  id             String         @id @default(uuid())
+  referralId     String
+  eventType      String
+  previousStatus ReferralStatus?
+  newStatus      ReferralStatus
+  reason         String?
+  createdAt      DateTime       @default(now())
+
+  referral       Referral       @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@map("referral_events")
+}
+
+model RewardRule {
+  id                  String   @id @default(uuid())
+  campaignId          String
+  name                String
+  thresholdRank       Int?     // Awarded if rank <= thresholdRank (e.g. Rank 1)
+  thresholdReferrals  Int?     // Awarded if referralCount >= threshold
+  rewardType          String   @default("coupon") // "coupon", "vip_access", "gift"
+  couponPrefix        String   @default("LOBBY-WIN-")
+  createdAt           DateTime @default(now())
+
+  campaign            Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("reward_rules")
+}
+
+model Coupon {
+  id               String       @id @default(uuid())
+  campaignMemberId String
+  code             String       @unique
+  rewardRuleId     String?
+  status           CouponStatus @default(ACTIVE)
+  expiresAt        DateTime?
+  createdAt        DateTime     @default(now())
+
+  member           CampaignMember @relation(fields: [campaignMemberId], references: [id], onDelete: Cascade)
+
+  @@map("coupons")
+}
+
+model FraudSignal {
+  id               String      @id @default(uuid())
+  campaignId       String
+  campaignMemberId String?
+  signalType       String      // "DISPOSABLE_EMAIL", "VELOCITY_SPIKE", "IP_COLLISION", "SELF_REFERRAL"
+  riskScore        Int         @default(0)
+  details          Json?
+  status           FraudStatus @default(SUSPICIOUS)
+  createdAt        DateTime    @default(now())
+
+  campaign         Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  member           CampaignMember? @relation(fields: [campaignMemberId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId, signalType])
+  @@map("fraud_signals")
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  organizationId String?
+  userId         String?
+  action         String
+  targetType     String
+  targetId       String?
+  ipAddress      String?
+  details        Json?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@map("audit_logs")
+}

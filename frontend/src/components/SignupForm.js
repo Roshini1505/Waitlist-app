@@ -1,104 +1,78 @@
-import emailjs from "emailjs-com";
 import React, { useState } from "react";
+import { signupCustomer } from "../services/api";
 
-const SignupForm = ({ setPosition, setReferralCode }) => {
+const SignupForm = ({ setPosition, setReferralCode, setUserEmail, defaultReferralCode = "" }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [referralLink, setReferralLink] = useState("");
+  const [referralCode, setReferralCodeState] = useState(defaultReferralCode);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    setLoading(true); // Set loading state to true
+    setError("");
+    setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/customers/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name, email, referralLink }), // Include name in request body
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setPosition(data.position);
-        setReferralCode(data.referralLink);
-
-        // Send confirmation email
-        const templateParams = {
-          to_name: name,
-          to_email: email,
-          message: "Thank you for signing up!",
-          referralLink: data.referralLink,
-        };
-
-        await emailjs.send(
-          process.env.REACT_APP_EMAILJS_SERVICE_ID, // Ensure this is set in your .env file
-          process.env.REACT_APP_EMAILJS_TEMPLATE_ID, // Ensure this is set in your .env file
-          templateParams,
-          process.env.REACT_APP_EMAILJS_USER_ID // Ensure this is set in your .env file
-        );
-
-        setMessage("Signup successful! Check your email for confirmation.");
-        // Reset form fields after successful signup
-        setName("");
-        setEmail("");
-        setReferralLink("");
-      } else {
-        const errorData = await response.json();
-        setMessage(
-          `Signup failed: ${errorData.message || "Please try again."}`
-        );
-      }
-    } catch (error) {
-      console.error("There was an error during signup:", error);
-      setMessage("An error occurred. Please try again.");
+      const data = await signupCustomer({ name, email, referralCode });
+      setPosition(data.position);
+      setReferralCode(data.referralLink);
+      if (setUserEmail) setUserEmail(email);
+      setMessage("Signup successful! Check your email for confirmation.");
+      setName("");
+      setEmail("");
+      setReferralCodeState("");
+    } catch (err) {
+      setError(err.message || "An error occurred. Please try again.");
     } finally {
-      setLoading(false); // Set loading state to false
+      setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Name:</label>
+        <label htmlFor="name">Name:</label>
         <input
+          id="name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter your name"
+          aria-label="Full name"
           required
         />
       </div>
       <div>
-        <label>Email:</label>
+        <label htmlFor="email">Email:</label>
         <input
+          id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
+          aria-label="Email address"
           required
         />
       </div>
       <div>
-        <label>Referral Link (optional):</label>
+        <label htmlFor="referralCode">Referral Code (optional):</label>
         <input
+          id="referralCode"
           type="text"
-          value={referralLink}
-          onChange={(e) => setReferralLink(e.target.value)}
-          placeholder="Enter referral link (if any)"
+          value={referralCode}
+          onChange={(e) => setReferralCodeState(e.target.value)}
+          placeholder="Enter referral code (if any)"
+          aria-label="Referral code"
         />
       </div>
       <button type="submit" disabled={loading}>
-        {loading ? "Signing Up..." : "Sign Up"}
+        {loading ? "⏳ Signing Up..." : "Sign Up"}
       </button>
-      {message && <p>{message}</p>}
+      {error && <p className="error-message">{error}</p>}
+      {message && <p className="success-message">{message}</p>}
     </form>
   );
 };

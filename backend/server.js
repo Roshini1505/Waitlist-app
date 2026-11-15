@@ -1,137 +1,123 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const dotenv = require("dotenv");
 const cors = require("cors");
-const { v4: uuidv4 } = require("uuid");
-const validator = require("validator");
-const Customer = require("./models/Customer");
-const emailjs = require("emailjs-com"); // Static import of EmailJS
+const dotenv = require("dotenv");
+const http = require("http");
+const path = require("path");
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(bodyParser.json());
+// Body parsing
+app.use(express.json());
+
+// Security headers (Helmet with zero-crash fallback)
+try {
+  const helmet = require("helmet");
+  app.use(helmet({ contentSecurityPolicy: false })); // allow inline assets & styles
+} catch (e) {
+  app.use((req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    next();
+  });
+}
+
+// Request logging (Morgan with fallback)
+try {
+  const morgan = require("morgan");
+  app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+} catch (e) {
+  app.use((req, res, next) => {
+    if (!req.url.startsWith("/assets")) {
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    }
+    next();
+  });
+}
+
+// CORS
 app.use(cors());
 
-// Connect to MongoDB
-(async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("Connected to MongoDB Atlas");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
+// Rate limiting (with zero-crash fallback)
+let signupLimiter = (req, res, next) => next();
+try {
+  const rateLimit = require("express-rate-limit");
+  signupLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: { message: "Too many requests, please try again later." },
+  });
+} catch (e) {
+  // Rate limit module optional
+}
+
+// Routes
+const apiRouter = require("./src/routes/api");
+const { syncLegacyData } = require("./src/db/migrate");
+
+app.use("/api", signupLimiter, apiRouter);
+app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date().toISOString() }));
+
+// Swagger Docs (optional)
+try {
+  const swaggerUi = require("swagger-ui-express");
+  const swaggerSpec = require("./config/swagger");
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+} catch (e) {
+  app.get("/api/docs", (req, res) => {
+    res.json({ message: "Swagger UI optional. API endpoints: POST /api/customers/signup, GET /api/customers/position/:email, GET /api/admin/stats" });
+  });
+}
+
+// Serve Frontend Static Web Application
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
+
+// Client-side routes fallback to index.html (for /referral/:code, /check, /admin)
+app.get("*", (req, res) => {
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ message: "API endpoint not found" });
   }
-})();
-
-// Function to send email
-const sendEmail = async (templateParams) => {
-  const serviceID = process.env.EMAILJS_SERVICE_ID;
-  const templateID = process.env.EMAILJS_TEMPLATE_ID;
-  const userID = process.env.EMAILJS_USER_ID;
-
-  try {
-    const response = await emailjs.send(
-      serviceID,
-      templateID,
-      templateParams,
-      userID
-    );
-    console.log("Email sent successfully:", response);
-  } catch (error) {
-    console.error("Error sending email:", error);
-  }
-};
-
-// Signup route
-app.post("/api/customers/signup", async (req, res) => {
-  const { email, referralLink } = req.body;
-
-  // Validate email
-  if (!email || !validator.isEmail(email)) {
-    return res.status(400).json({ message: "Valid email is required" });
-  }
-
-  try {
-    // Check for existing customer with the same email
-    const existingCustomer = await Customer.findOne({ email });
-    if (existingCustomer) {
-      return res.status(409).json({ message: "Email already registered" });
-    }
-
-    // Determine the position for the new customer
-    let position = 99;
-    const lastCustomer = await Customer.findOne().sort({ position: -1 });
-    if (lastCustomer) {
-      position = lastCustomer.position + 1;
-    }
-
-    // Ensure a valid referral link is set
-    let newReferralLink = referralLink || uuidv4(); // Generate a new referral link if not provided
-
-    // Check for existing referral links
-    let existingReferral = await Customer.findOne({
-      referralLink: newReferralLink,
-    });
-    while (existingReferral) {
-      // If the generated referral link already exists, generate a new one
-      newReferralLink = uuidv4();
-      existingReferral = await Customer.findOne({
-        referralLink: newReferralLink,
-      });
-    }
-
-    // Create a new customer
-    const newCustomer = new Customer({
-      email,
-      referralLink: newReferralLink, // Ensure this is never null
-      position,
-    });
-    await newCustomer.save();
-
-    // Prepare and send the confirmation email
-    const templateParams = {
-      to_email: email,
-      message: "Thank you for signing up!",
-      referralLink: `${process.env.BASE_URL}/referral/${newReferralLink}`,
-    };
-
-    // Log environment variables for debugging
-    console.log("Service ID:", process.env.EMAILJS_SERVICE_ID);
-    console.log("Template ID:", process.env.EMAILJS_TEMPLATE_ID);
-    console.log("User ID:", process.env.EMAILJS_USER_ID);
-
-    await sendEmail(templateParams);
-
-    // Respond with success
-    res.status(201).json({
-      message:
-        "Customer signed up successfully. Check your email for confirmation.",
-      position: newCustomer.position,
-      referralLink: `${process.env.BASE_URL}/referral/${newReferralLink}`,
-    });
-  } catch (error) {
-    // Log the error and respond with a 500 status
-    console.error("An error occurred during signup:", error);
-    res.status(500).json({
-      message: "An internal server error occurred",
-      error: error.message,
-    });
-  }
+  res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// Global error handling middleware
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
+  console.error("Unhandled Error:", err.stack || err);
+  res.status(500).json({ message: "Internal server error" });
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// HTTP Server & Socket.io setup (with fallback)
+const httpServer = http.createServer(app);
+let io = null;
+try {
+  const { Server } = require("socket.io");
+  io = new Server(httpServer, { cors: { origin: "*" } });
+  io.on("connection", (socket) => {
+    console.log("Client connected:", socket.id);
+  });
+} catch (e) {
+  io = { emit: () => {} };
+}
+app.set("io", io);
+
+// Start HTTP server immediately
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Waitlist Application is LIVE at: http://localhost:${PORT}`);
 });
+
+// Connect to MongoDB & Initialize Lobby Data Layer
+console.log("Connecting to MongoDB Atlas...");
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(async () => {
+    console.log("✅ Connected to MongoDB Atlas");
+    await syncLegacyData();
+  })
+  .catch(async (err) => {
+    console.error("MongoDB connection status:", err.message);
+    await syncLegacyData();
+  });
