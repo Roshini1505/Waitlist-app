@@ -1,208 +1,154 @@
-# Lobby (LaunchOS) — Enterprise Product Launch & Waitlist Orchestration Platform
+# LOBBY
 
-![Node](https://img.shields.io/badge/Node.js-20.x-339933?logo=nodedotjs)
-![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Authoritative-4169E1?logo=postgresql)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas%20Bridge-47A248?logo=mongodb)
-![Socket.io](https://img.shields.io/badge/Socket.io-Real--Time-010101?logo=socketdotio)
-![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-85EA2D?logo=swagger)
-![License](https://img.shields.io/badge/License-MIT-blue)
+A product launch and waitlist management platform for teams running product releases, early-access programmes, and private launches.
 
-**Lobby** is a commercial-grade, multi-tenant product launch management and intelligent waitlist orchestration platform. Built to support organizations managing high-demand product releases (consumer electronics, early-access SaaS, hardware drops, private betas), Lobby replaces traditional static waitlists with an event-driven viral loop, dynamic score-based queue ranking, rule-based fraud detection, milestone rewards, and an operational administrative console.
+LOBBY helps teams manage registrations, referrals, queue positions, rewards, and campaign activity from one place.
 
----
+## Features
 
-## 🌟 Core Architectural Capabilities
+- **Campaign management:** Create and manage product launch campaigns.
+- **Waitlist ranking:** Rank participants using approved referrals, with a consistent tie-break rule.
+- **Referral tracking:** Track referrals through pending, approved, and rejected states.
+- **Fraud checks:** Flag disposable email addresses, self-referrals, email aliases, and unusual signup activity.
+- **Milestone rewards:** Issue unique reward coupons when participants reach configured milestones.
+- **Live updates:** Broadcast queue and signup changes using Socket.IO.
+- **Admin tools:** View campaign activity, queue members, analytics, and audit events.
+- **API documentation:** Explore the API through Swagger UI at `/api/docs`.
 
-- **🏢 Multi-Tenant Domain Hierarchy**: Strict tenant isolation across Organizations, Users, Campaigns, Queue Members, Referrals, Rewards, and Audit Trails.
-- **⚡ Dynamic Score-Based Ranking Engine**: Replaces obsolete position-decrementing algorithms with a verified scoring engine (`score = approved_referrals * weight`) and deterministic tie-breaking on `createdAt ASC`.
-- **🛡️ Rule-Based Fraud Detection**: Real-time screening for disposable burner emails (100+ domains), mailbox alias exploits, self-referrals, and IP velocity spikes.
-- **🎁 Automated Milestone Rewards**: Unlocks cryptographically unique priority pass coupons (e.g. `LOBBY-VIP-XXXXXXXX`) and dispatches transactional emails upon reaching Rank 1 or referral tiers.
-- **🎨 Human-Crafted SaaS Design System**: A clean, restrained dark theme inspired by Stripe and Linear, incorporating the official Lobby branding (`assets/lobby.png` and `assets/waitlist_logo.png`) with zero AI-generated visual clutter (no gradients, neon borders, glassmorphism, or emojis).
-- **🔄 Real-Time Live Sync**: Socket.io push broadcasts updating queue standings and active participant counters across active clients.
-- **📖 OpenAPI 3.0 Documentation**: Comprehensive specification accessible via Swagger UI at `/api/docs`.
-- **🧪 100% Automated Test Coverage**: End-to-end test suites verifying multi-tenant isolation, scoring, tie-breaking, fraud rules, and coupon delivery.
+## Tech Stack
 
----
+| Area | Technology |
+|---|---|
+| Frontend | Vanilla JavaScript (ES6), with a React 18 workspace |
+| Backend | Node.js 20, Express 4 |
+| Database | PostgreSQL, Prisma, and a MongoDB bridge |
+| Real-time updates | Socket.IO |
+| Email | Nodemailer |
+| Security | Helmet, rate limiting, and CORS |
+| API documentation | Swagger UI, OpenAPI 3.0 |
+| Testing | Node.js test runner and Jest |
 
-## 🏗️ System Architecture & Data Flow
+## Architecture
+
+The application is organised as a modular backend. The API routes requests to services responsible for registration, queue ranking, referrals, fraud checks, rewards, and campaign analytics.
+
+PostgreSQL is the primary relational data store. Socket.IO handles live updates, and Nodemailer sends transactional emails.
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client Layer (Lobby UI)"]
-        Public["Public Campaign Launch Page\n(/c/:slug)"]
-        Check["Standing Lookup Portal\n(/check)"]
-        Board["Live Verified Leaderboard\n(/leaderboard)"]
-        Console["Operational Admin Console\n(/admin)"]
-    end
-
-    subgraph Gateway ["Lobby API Gateway & Middleware"]
-        Router["Express Master Router (/api)"]
-        Sec["Security Headers & Rate Limiting\n(Helmet, RateLimit, CORS)"]
-        Auth["Admin Key & Role Authorization"]
-    end
-
-    subgraph Core ["Lobby Domain Services"]
-        RegSvc["Registration Engine\n(Capacity & Window Guards)"]
-        QueueSvc["Scored Ranking Engine\n(Deterministic Tie-Breaking)"]
-        RefSvc["Referral Lifecycle Engine\n(PENDING / APPROVED / REJECTED)"]
-        FraudSvc["Rule-Based Fraud Engine\n(Disposable Domains & Velocity)"]
-        RewardSvc["Reward & Coupon Engine\n(Milestone Triggers)"]
-        CampSvc["Campaign & Analytics Service"]
-    end
-
-    subgraph Data ["Storage & Acceleration Layer"]
-        PrismaModel["Prisma Relational Schema\n(PostgreSQL Authoritative)"]
-        Store["Lobby Data Store & In-Memory Cache"]
-        Mail["Nodemailer Transactional SMTP"]
-        Sockets["Socket.io WebSocket Layer"]
-    end
-
-    Public --> Gateway
-    Check --> Gateway
-    Board --> Gateway
-    Console --> Gateway
-
-    Gateway --> Router
-    Router --> Sec
-    Router --> Auth
-
-    Router --> RegSvc
-    Router --> QueueSvc
-    Router --> RefSvc
-    Router --> FraudSvc
-    Router --> RewardSvc
-    Router --> CampSvc
-
-    RegSvc --> Store
-    QueueSvc --> Store
-    RefSvc --> Store
-    FraudSvc --> Store
-    RewardSvc --> Store
-    CampSvc --> Store
-
-    Store -.-> PrismaModel
-    RegSvc --> Mail
-    RewardSvc --> Mail
-    RegSvc --> Sockets
+    A["LOBBY Web App"] --> B["Express API"]
+    B --> C["Security and Authorization"]
+    C --> D["Registration"]
+    C --> E["Queue Ranking"]
+    C --> F["Referrals"]
+    C --> G["Fraud Checks"]
+    C --> H["Rewards"]
+    C --> I["Campaigns and Analytics"]
+    D --> J["Data Store"]
+    E --> J
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    J --> K["PostgreSQL / Prisma"]
+    D --> L["Email and Live Updates"]
+    H --> L
 ```
 
----
+## Getting Started
 
-## 🛠️ Technology Stack
+### Requirements
 
-| Domain | Technology | Implementation Details |
-|---|---|---|
-| **Frontend** | Vanilla ES6 SPA + React 18 Workspace | Clean component architecture, dynamic client-side router, SVG vector iconography (Lucide), responsive mobile layout. |
-| **Backend** | Node.js 20.x + Express 4.x | Modular monolith domain architecture with isolated controllers, services, repositories, and error boundaries. |
-| **Data Architecture** | PostgreSQL / Prisma Schema + Mongo Bridge | Multi-tenant schema with foreign key constraints, unique sparse indexes, and backward-compatible data sync. |
-| **Real-Time** | Socket.io 4.x | Bidirectional WebSockets emitting `signup-count` and `position-update` events. |
-| **Email** | Nodemailer 6.x | Clean HTML transactional emails for Queue Confirmation and Milestone Reward Coupons. |
-| **Security** | Helmet, RateLimit, CORS | Hardened HTTP response headers, anti-bot signup throttling (10 req/min per IP), and authorization verification. |
-| **API Docs** | Swagger UI + OpenAPI 3.0 | Specification interactive explorer at `/api/docs`. |
-| **Testing** | Node Test Runner / Jest | 7 automated master verification suites testing data consistency, fraud signals, and queue mathematics. |
+- Node.js 20 or later
+- npm
+- Access to the configured database
 
----
+### Run on Windows
 
-## 🚀 Quick Start (Local Setup)
+Double-click `start.bat` from the project folder.
 
-The application is completely self-contained and pre-configured. No external dependencies or Docker required.
+The application should start at:
 
-### 1-Click Launch (Windows)
-Double-click **`start.bat`** in your project folder.
-It will automatically connect to the database and launch **[http://localhost:5000](http://localhost:5000)** in your default browser.
+`http://localhost:5000`
 
-### Terminal Launch
+### Run from the terminal
+
+From the project root:
+
 ```bash
-# From project root:
+npm install
 npm start
+```
 
-# Or directly from backend:
+Or start the backend directly:
+
+```bash
 cd Waitlist-app-main/backend
+npm install
 node server.js
 ```
 
-- **Lobby Web Application**: [http://localhost:5000](http://localhost:5000)
-- **Interactive Swagger Docs**: [http://localhost:5000/api/docs](http://localhost:5000/api/docs)
-- **Health Check Probe**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
+### Local URLs
 
----
+| Service | URL |
+|---|---|
+| Web application | `http://localhost:5000` |
+| API documentation | `http://localhost:5000/api/docs` |
+| Health check | `http://localhost:5000/api/health` |
 
-## 📡 REST API Reference
+Make sure the database and required environment variables are configured before starting the application.
 
-Full OpenAPI 3.0 specification available live at `GET /api/docs`.
+## API Overview
 
-| Method | Endpoint | Access | Purpose |
+The full API specification is available at `GET /api/docs`.
+
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| `GET` | `/api/v1/campaigns` | Public | List active product launch campaigns |
-| `GET` | `/api/v1/campaigns/:slug` | Public | Retrieve campaign details, capacity, and active window |
-| `GET` | `/api/v1/campaigns/:slug/leaderboard` | Public | Retrieve verified queue leaderboard with masked emails |
-| `POST` | `/api/v1/campaigns/:slug/register` | Public (Throttled) | Register participant, evaluate fraud risk, and assign queue rank |
-| `GET` | `/api/v1/campaigns/:slug/members/:email` | Public | Look up participant standing, score points, and reward coupons |
-| `GET` | `/api/v1/admin/stats` | Admin (`x-admin-key`) | Aggregated telemetry, fraud risk signals, and audit stream |
-| `GET` | `/api/admin/customers` | Admin (`x-admin-key`) | Paginated queue roster with sortable columns |
-| `POST` | `/api/v1/admin/campaigns` | Admin (`x-admin-key`) | Create and provision a new product launch campaign |
-| `POST` | `/api/v1/admin/referrals/:id/approve` | Admin (`x-admin-key`) | Manually approve held referral credit |
-| `POST` | `/api/v1/admin/referrals/:id/reject` | Admin (`x-admin-key`) | Reject or reverse fraudulent referral credit |
-| `POST` | `/api/customers/signup` | Public | Backward-compatible legacy registration endpoint |
-| `GET` | `/api/customers/position/:email` | Public | Backward-compatible legacy position lookup endpoint |
+| `GET` | `/api/v1/campaigns` | Public | List active campaigns |
+| `GET` | `/api/v1/campaigns/:slug` | Public | Get campaign details |
+| `GET` | `/api/v1/campaigns/:slug/leaderboard` | Public | View the verified leaderboard |
+| `POST` | `/api/v1/campaigns/:slug/register` | Public | Register for a campaign |
+| `GET` | `/api/v1/campaigns/:slug/members/:email` | Public | Check a participant's queue status |
+| `GET` | `/api/v1/admin/stats` | Admin | View campaign and platform statistics |
+| `GET` | `/api/admin/customers` | Admin | View the participant list |
+| `POST` | `/api/v1/admin/campaigns` | Admin | Create a campaign |
+| `POST` | `/api/v1/admin/referrals/:id/approve` | Admin | Approve a referral |
+| `POST` | `/api/v1/admin/referrals/:id/reject` | Admin | Reject a referral |
+| `POST` | `/api/customers/signup` | Public | Legacy signup endpoint |
+| `GET` | `/api/customers/position/:email` | Public | Legacy queue position lookup |
 
----
+Admin endpoints use the `x-admin-key` header.
 
-## 🧪 Running Automated Verification Tests
+## Run Tests
 
-The platform includes an automated master verification suite testing every domain:
+Run the platform verification suite from the backend directory:
 
 ```bash
 cd Waitlist-app-main/backend
 node src/modules/verify_platform.test.js
 ```
 
-### Verification Test Output:
-```text
-=================================================================
-   🚀 LOBBY PLATFORM — MASTER END-TO-END VERIFICATION SUITE
-=================================================================
+The suite checks:
 
-▶ SUITE 1: Multi-Tenant Organization & Campaign Isolation
-  ✔ Verified: Multi-tenant organization and distinct campaign boundaries active.
+1. Organisation and campaign isolation
+2. Registration validation and capacity limits
+3. Fraud detection rules
+4. Queue scoring and ranking
+5. Reward conditions and coupon generation
+6. Analytics, leaderboards, and audit events
+7. OpenAPI documentation
 
-▶ SUITE 2: Registration Engine, Validation & Capacity Guards
-  ✔ Verified: Input validation, email normalization, and duplicate rejection operational.
+## Security
 
-▶ SUITE 3: Rule-Based Fraud Detection & Risk Scoring
-  ✔ Verified: Disposable email domains, self-referrals, and alias tricks detected & blocked.
+LOBBY includes several checks to help protect campaign registrations and queue integrity:
 
-▶ SUITE 4: Intelligent Scored Queue & Deterministic Overtaking
-  ✔ Verified: Dynamic score-based ranking and deterministic overtaking validated.
+- Rate limiting on registration requests
+- Checks for disposable email domains
+- Detection of self-referrals and common email alias patterns
+- Referral review before credit is applied
+- Audit logging for administrative actions and reward events
+- Consistent queue ranking to avoid position conflicts
 
-▶ SUITE 5: Milestone Reward Rule Evaluation & Coupon Awards
-  ✔ Verified: Automated reward coupon generated and issued: LOBBY-VIP-ABFCEFFB
+## License
 
-▶ SUITE 6: Analytics Aggregation, Leaderboards & Audit Trails
-  ✔ Verified: Real-time leaderboard, telemetry metrics, and immutable audit logs operational.
-
-▶ SUITE 7: OpenAPI 3.0 / Swagger Contract Verification
-  ✔ Verified: OpenAPI 3.0 specification active with schemas and security definitions.
-
-=================================================================
-  ✨ ALL 7 MASTER VERIFICATION SUITES PASSED WITHOUT ERRORS!
-=================================================================
-```
-
----
-
-## 🔒 Security & Fraud Defenses
-
-1. **Deterministic Scored Queues**: Replaced vulnerable position-decrementing with atomic score ranking; eliminates negative queue positions and ranking race conditions.
-2. **Disposable Domain Interception**: Blacklists over 100 known burner mailbox domains (`tempmail.com`, `mailinator.com`, `10minutemail.com`).
-3. **Self-Referral & Alias Shielding**: Flags and holds referrals where referee matches referrer email or Gmail alias format (`user+promo@domain.com`).
-4. **IP Velocity Throttling**: Sliding-window rate checks throttle automated registration scripts.
-5. **Audit Event Logging**: Immutable audit stream logging administrative overrides, campaign creations, and reward awards.
-
----
-
-## 📄 License
-
-Licensed under the MIT License. Copyright © 2026 Lobby Platform Engineering.
+This project is licensed under the MIT License.
